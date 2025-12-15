@@ -188,6 +188,25 @@
             border: 1px solid var(--accent-color);
             box-shadow: 0 0 5px var(--shadow-color);
         }
+
+        /* 新增开源标注样式 */
+        .open-source-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        .open-source-footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: text-shadow 0.3s;
+        }
+        .open-source-footer a:hover {
+            text-shadow: 0 0 5px var(--shadow-color);
+        }
     </style>
 </head>
 <body>
@@ -239,8 +258,8 @@
 
                 <div class="link-item">
                     <i class="fab fa-github"></i>
-                    <a href="https://github.com/ybnbttkx" target="_blank">GitHub 代码仓库</a>
-                    <em>ID: <span>ybnbttkx</span></em>
+                    <a href="https://github.com/ybnbttkx" target="_blank">GitHub </a>
+                    <em>ID: <span>ybttkx</span></em>
                 </div>
 
                 <div class="link-item">
@@ -262,6 +281,11 @@
             <p>
                 我在技术的海洋中不断探索，乐于分享和解决问题。欢迎所有对代码、互联网和创新有兴趣的朋友与我交流，共同进步！
             </p>
+        </div>
+
+        <!-- 修改后的开源标注 -->
+        <div class="open-source-footer">
+            <i class="fab fa-github"></i> <a href="https://github.com/ybttkx/myself/" target="_blank">本站已开源</a>
         </div>
     </div>
 </body>
