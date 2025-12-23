@@ -223,18 +223,18 @@
 
   <div class="snap-container" id="mainContainer">
     <section class="active">
-      <div class="bg-layer" data-bg="https://app.zichen.zone/api/acg/api.php?1"></div>
+      <div class="bg-layer" data-bg="https://eopfapi.acofork.com/pic?img=ua"></div>
       <div class="overlay"></div>
       <div class="content">
         <div class="title">毅白 · YIBAI</div>
         <div class="subtitle">过程至上 · 长期打磨</div>
         <div class="desc">专注构建与打磨，用时间换质量</div>
-        <div class="scroll-hint">向下滚动探索</div> <!-- 修改为向下滚动，避免误导 -->
+        <div class="scroll-hint">向下滚动探索</div>
       </div>
     </section>
 
     <section>
-      <div class="bg-layer" data-bg="https://app.zichen.zone/api/acg/api.php?2"></div>
+      <div class="bg-layer" data-bg="https://eopfapi.acofork.com/pic?img=ua"></div>
       <div class="overlay"></div>
       <div class="content">
         <div class="subtitle">生态 · 连接</div>
@@ -247,7 +247,7 @@
     </section>
 
     <section>
-      <div class="bg-layer" data-bg="https://app.zichen.zone/api/acg/api.php?3"></div>
+      <div class="bg-layer" data-bg="https://eopfapi.acofork.com/pic?img=ua"></div>
       <div class="overlay"></div>
       <div class="content">
         <div class="subtitle">开源 · 进化</div>
@@ -267,7 +267,8 @@
     // 1. 初始化背景图加载
     sections.forEach((section, index) => {
       const bgLayer = section.querySelector('.bg-layer');
-      const imgUrl = bgLayer.getAttribute('data-bg');
+      // 直接使用同一个随机图 API，每次访问都会返回不同图片
+      const imgUrl = "https://eopfapi.acofork.com/pic?img=ua";
       const img = new Image();
       img.src = imgUrl;
       img.onload = () => {
