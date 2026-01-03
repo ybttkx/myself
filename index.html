@@ -6,12 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
-      --glass-bg: rgba(20, 20, 20, 0.7);
+      --glass-bg: rgba(20, 20, 20, 0.75);
       --border: rgba(255, 255, 255, 0.15);
       --accent: #00eaff;
       --text-main: #ffffff;
       --text-sub: rgba(255,255,255,0.65);
-      --ease: cubic-bezier(0.22, 1, 0.36, 1); /* QQ官网同款缓动 */
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,9 +30,9 @@
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
       scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
     }
 
-    /* 每一屏的基础样式 */
     section {
       position: relative;
       height: 100vh;
@@ -44,17 +44,18 @@
       overflow: hidden;
     }
 
-    /* 背景层：实现 QQ 同款缩放视差 */
+    /* 背景层视差：增加微量缩放动画 */
     .bg-layer {
       position: absolute;
-      inset: 0;
+      inset: -5%; 
       background-size: cover;
       background-position: center;
-      filter: brightness(0.5);
-      transform: scale(1.2) translateY(var(--parallax, 0%)); /* 添加视差变量 */
-      transition: transform 1.5s var(--ease), opacity 1s ease;
+      filter: brightness(0.4) saturate(1.1);
+      transform: scale(1.1) translateY(var(--parallax, 0%));
+      transition: transform 1.2s var(--ease), opacity 1.5s ease;
       z-index: 1;
       opacity: 0;
+      will-change: transform;
     }
 
     section.active .bg-layer {
@@ -62,159 +63,127 @@
       opacity: 1;
     }
 
-    /* 遮罩 */
     .overlay {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at center, transparent, rgba(0,0,0,0.4));
+      background: radial-gradient(circle at center, transparent, rgba(0,0,0,0.5));
       z-index: 2;
     }
 
-    /* 内容卡片动画 */
+    /* 内容卡片 */
     .content {
       position: relative;
       z-index: 3;
-      width: 90%;
-      max-width: 500px;
-      padding: 40px;
+      width: clamp(320px, 90%, 500px);
+      padding: 45px 40px;
       background: var(--glass-bg);
-      backdrop-filter: blur(20px);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
       border: 1px solid var(--border);
-      border-radius: 24px;
+      border-radius: 32px;
       text-align: center;
-      
-      /* 初始状态：下移且透明 */
-      opacity: 0;
-      transform: translateY(100px);
-      transition: all 1s var(--ease);
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
     }
 
-    section.active .content {
+    /* 进场阶梯动画 */
+    .content > * {
+      opacity: 0;
+      transform: translateY(25px);
+      transition: all 0.8s var(--ease);
+    }
+
+    section.active .content > * {
       opacity: 1;
       transform: translateY(0);
     }
 
-    /* 鼠标跟随光斑 */
-    .content::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 24px;
-      pointer-events: none;
-      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 234, 255, 0.15), transparent 50%);
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
+    section.active .content > *:nth-child(1) { transition-delay: 0.2s; }
+    section.active .content > *:nth-child(2) { transition-delay: 0.35s; }
+    section.active .content > *:nth-child(3) { transition-delay: 0.5s; }
+    section.active .content > *:nth-child(4) { transition-delay: 0.65s; }
 
-    .content:hover::before {
-      opacity: 1;
-    }
-
-    /* 文字与链接样式 */
-    .title { 
-      font-size: 2.5rem; 
-      font-weight: 700; 
-      letter-spacing: 2px; 
+    /* 差异化效果：第一屏打字机 */
+    .title { font-size: 2.2rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 8px; display: inline-block; }
+    section.active:first-child .title {
       overflow: hidden;
       white-space: nowrap;
       border-right: 3px solid var(--accent);
+      animation: typing 2s steps(15) forwards, blink 0.7s infinite;
     }
 
-    section.active:first-child .title {
-      width: 0;
-      animation: typing 3s steps(10) forwards, blink 0.7s infinite;
+    /* 差异化效果：第二屏横划入 */
+    section:nth-child(2) .links a { opacity: 0; transform: translateX(-15px); transition: all 0.6s var(--ease); }
+    section:nth-child(2).active .links a:nth-child(1) { transition-delay: 0.6s; opacity: 1; transform: translateX(0); }
+    section:nth-child(2).active .links a:nth-child(2) { transition-delay: 0.7s; opacity: 1; transform: translateX(0); }
+    section:nth-child(2).active .links a:nth-child(3) { transition-delay: 0.8s; opacity: 1; transform: translateX(0); }
+
+    /* 差异化效果：第三屏缩放 */
+    section:nth-child(3).active .content { animation: zoomInBlur 1.2s var(--ease) forwards; }
+
+    @keyframes zoomInBlur {
+      0% { opacity: 0; transform: scale(0.95) translateY(10px); filter: blur(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
     }
 
-    @keyframes typing {
-      from { width: 0; }
-      to { width: 100%; }
-    }
-
-    @keyframes blink {
-      50% { border-color: transparent; }
-    }
-
-    .subtitle { color: var(--accent); margin: 15px 0; font-size: 1rem; }
-    .desc { color: var(--text-sub); line-height: 1.8; margin-bottom: 30px; }
-
-    .links { display: grid; gap: 12px; }
+    /* 链接与文字 */
+    .links { display: grid; gap: 14px; margin-top: 25px; }
     .links a {
-      padding: 14px;
+      padding: 16px;
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 16px;
       color: #fff;
       text-decoration: none;
-      background: rgba(255,255,255,0.05);
-      transition: 0.3s;
+      background: rgba(255,255,255,0.02);
+      transition: all 0.3s var(--ease);
+      font-weight: 500;
     }
     .links a:hover {
       border-color: var(--accent);
-      background: rgba(0,234,255,0.1);
-      box-shadow: 0 0 20px rgba(0,234,255,0.3);
+      background: rgba(0,234,255,0.08);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 24px rgba(0,234,255,0.15);
     }
 
-    /* 侧边导航点 */
+    .subtitle { color: var(--accent); margin-bottom: 12px; font-weight: 600; font-size: 0.9rem; letter-spacing: 2px; }
+    .desc { color: var(--text-sub); line-height: 1.8; font-size: 0.95rem; }
+
+    /* 导航点 */
     .nav-dots {
       position: fixed;
-      right: 25px;
+      right: 30px;
       top: 50%;
       transform: translateY(-50%);
       z-index: 100;
     }
-
-    .nav-dots::before {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 15px;
-      bottom: 15px;
-      width: 2px;
-      background: rgba(255,255,255,0.1);
-      transform: translateX(-50%);
-      border-radius: 1px;
-    }
-
-    .nav-dots::after {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 15px;
-      width: 2px;
-      background: var(--accent);
-      transform: translateX(-50%);
-      border-radius: 1px;
-      transform-origin: top;
-      transition: height 0.6s var(--ease);
-      height: var(--line-height, 0);
-    }
-
     .dot {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.3);
-      margin: 20px 0;
+      background: rgba(255,255,255,0.2);
+      margin: 18px 0;
       cursor: pointer;
-      transition: 0.3s;
+      transition: 0.4s var(--ease);
+      position: relative;
     }
     .dot.active {
       background: var(--accent);
-      transform: scale(1.5);
-      box-shadow: 0 0 10px var(--accent);
+      transform: scale(1.6);
+      box-shadow: 0 0 15px var(--accent);
     }
 
     .scroll-hint {
-        position: absolute;
-        bottom: 20px;
-        opacity: 0.5;
-        animation: bounce 2s infinite;
+      position: absolute;
+      bottom: 35px;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      color: var(--text-sub);
+      animation: bounce 2s infinite;
+      z-index: 3;
     }
-    @keyframes bounce { 0%,100% {transform:translateY(0)} 50% {transform:translateY(-10px)} }
 
-    /* 性能优化提示 */
-    .bg-layer, .content {
-      will-change: transform, opacity;
-    }
+    @keyframes typing { from { width: 0; } to { width: 100%; } }
+    @keyframes blink { 50% { border-color: transparent; } }
+    @keyframes bounce { 0%,100% {transform:translateY(0)} 50% {transform:translateY(-8px)} }
   </style>
 </head>
 <body>
@@ -223,104 +192,117 @@
 
   <div class="snap-container" id="mainContainer">
     <section class="active">
-      <div class="bg-layer" data-bg="https://eopfapi.acofork.com/pic?img=ua"></div>
+      <div class="bg-layer"></div>
       <div class="overlay"></div>
       <div class="content">
         <div class="title">毅白 · YIBAI</div>
-        <div class="subtitle">过程至上 · 长期打磨</div>
-        <div class="desc">专注构建与打磨，用时间换质量</div>
-        <div class="scroll-hint">向下滚动探索</div>
+        <div class="subtitle">STEADY & PURE</div>
+        <div class="desc">过程至上 · 长期打磨<br>用时间换取每一个像素的质感</div>
       </div>
+      <div class="scroll-hint">SCROLL TO DISCOVER</div>
     </section>
 
     <section>
-      <div class="bg-layer" data-bg="https://eopfapi.acofork.com/pic?img=ua"></div>
+      <div class="bg-layer"></div>
       <div class="overlay"></div>
       <div class="content">
-        <div class="subtitle">生态 · 连接</div>
+        <div class="subtitle">ECOLOGY · CONNECT</div>
+        <div class="desc">在不同的次元探索灵感</div>
         <div class="links">
-          <a href="https://github.com/ybnbttkx" target="_blank">GitHub · 代码托管</a>
+          <a href="https://github.com/ybnbttkx" target="_blank">GitHub · 源码库</a>
           <a href="https://space.bilibili.com/2081852873" target="_blank">Bilibili · 动态</a>
-          <a href="https://www.vkyun.cn" target="_blank">速核云寄售 · 项目</a>
+          <a href="https://www.vkyun.cn" target="_blank">速核云 · 寄售项目</a>
         </div>
       </div>
     </section>
 
     <section>
-      <div class="bg-layer" data-bg="https://eopfapi.acofork.com/pic?img=ua"></div>
+      <div class="bg-layer"></div>
       <div class="overlay"></div>
       <div class="content">
-        <div class="subtitle">开源 · 进化</div>
-        <div class="desc">本站已在 GitHub 开源<br>持续记录成长的每一步</div>
+        <div class="subtitle">OPEN SOURCE</div>
+        <div class="desc">这个小站也是我进化路上的里程碑<br>已在 GitHub 完全开源</div>
         <div class="links">
-            <a href="https://github.com/ybttkx/myself" target="_blank">获取本站源码</a>
+            <a href="https://github.com/ybttkx/myself" target="_blank" style="border-color: var(--accent)">获取本站源码</a>
         </div>
       </div>
     </section>
   </div>
 
   <script>
-    const container = document.getElementById('mainContainer');
+    // --- 1. 动态标题交互 (你的新功能) ---
+    const originTitle = document.title;
+    window.addEventListener('blur', () => {
+      document.title = "(つ ◕‿◕ )つ 记得回来呀...";
+    });
+    window.addEventListener('focus', () => {
+      document.title = "Σ(⊙▽⊙\"a 欢迎回来！";
+      setTimeout(() => { document.title = originTitle; }, 2000);
+    });
+
+    // --- 2. 背景与导航初始化 ---
     const sections = document.querySelectorAll('section');
     const navDots = document.getElementById('navDots');
 
-    // 1. 初始化背景图加载
     sections.forEach((section, index) => {
+      // 这里的 t=${index} 确保每屏图片唯一且能利用缓存
       const bgLayer = section.querySelector('.bg-layer');
-      // 直接使用同一个随机图 API，每次访问都会返回不同图片
-      const imgUrl = "https://eopfapi.acofork.com/pic?img=ua";
+      const imgUrl = `https://eopfapi.acofork.com/pic?img=ua&t=${index}`;
       const img = new Image();
       img.src = imgUrl;
-      img.onload = () => {
-        bgLayer.style.backgroundImage = `url(${imgUrl})`;
-      };
+      img.onload = () => bgLayer.style.backgroundImage = `url(${imgUrl})`;
 
-      // 动态生成导航点
       const dot = document.createElement('div');
       dot.className = 'dot' + (index === 0 ? ' active' : '');
       dot.onclick = () => section.scrollIntoView({ behavior: 'smooth' });
       navDots.appendChild(dot);
     });
 
-    // 2. 监听滚动触发动画（QQ官网核心逻辑）
+    // --- 3. 滚动观察者 ---
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           sections.forEach(s => s.classList.remove('active'));
           entry.target.classList.add('active');
-          
-          // 更新导航点
           const index = Array.from(sections).indexOf(entry.target);
-          const dots = document.querySelectorAll('.dot');
-          dots.forEach((d, i) => d.classList.toggle('active', i === index));
-
-          // 更新连接线高度
-          const totalHeight = navDots.offsetHeight - 50; // 减去上下间距
-          navDots.style.setProperty('--line-height', `${(index / (sections.length - 1)) * totalHeight}px`);
+          document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === index));
         }
       });
     }, { threshold: 0.5 });
 
     sections.forEach(s => observer.observe(s));
 
-    // 3. 鼠标跟随光斑
+    // --- 4. 高性能滚动视差 (requestAnimationFrame) ---
+    let ticking = false;
+    const container = document.getElementById('mainContainer');
+
+    container.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          sections.forEach((section) => {
+            const rect = section.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+              const offset = rect.top / window.innerHeight;
+              section.querySelector('.bg-layer').style.setProperty('--parallax', `${offset * 12}%`);
+            }
+          });
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+
+    // --- 5. 内容卡片鼠标交互 ---
     document.querySelectorAll('.content').forEach(card => {
       card.addEventListener('mousemove', e => {
         const rect = card.getBoundingClientRect();
         const x = ((e.clientX - rect.left) / rect.width) * 100 + '%';
         const y = ((e.clientY - rect.top) / rect.height) * 100 + '%';
-        card.style.setProperty('--mouse-x', x);
-        card.style.setProperty('--mouse-y', y);
+        // 动态聚光灯效果
+        card.style.background = `radial-gradient(circle at ${x} ${y}, rgba(0, 234, 255, 0.1), transparent 70%), var(--glass-bg)`;
       });
-    });
-
-    // 4. 背景轻微视差
-    window.addEventListener('scroll', () => {
-      sections.forEach((section, i) => {
-        const rect = section.getBoundingClientRect();
-        const offset = rect.top / window.innerHeight; // -1 到 1 范围
-        const parallax = offset * 20; // 调整这个值控制强度
-        section.querySelector('.bg-layer').style.setProperty('--parallax', `${parallax}%`);
+      card.addEventListener('mouseleave', () => {
+        card.style.background = `var(--glass-bg)`;
       });
     });
   </script>
